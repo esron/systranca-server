@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+/* eslint-disable node/shebang */
+/* eslint-disable no-unreachable */
+/* eslint-disable no-process-exit */
+/* eslint-disable no-console */
+
 
 /**
  * Module dependencies.

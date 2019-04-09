@@ -1,0 +1,49 @@
+const { validationResult, checkSchema } = require('express-validator/check');
+
+const User = require('../models/User');
+
+const UserController = {};
+
+UserController.validate = (method) => {
+  switch (method) {
+    case 'createUser': {
+      return checkSchema({
+        name: {
+          in: ['body'],
+          exists: {
+            errorMessage: 'Name field is required',
+          },
+          trim: true,
+          escape: true,
+          stripLow: true,
+        },
+        email: {
+          in: ['body'],
+          exists: {
+            errorMessage: 'Email field is required',
+          },
+          isEmail: {
+            errorMessage: 'Invalid Email',
+          },
+        }
+      });
+    }
+  }
+}
+
+UserController.createUser = (req, res, next) => {
+  const errors = validationResult(req) // To get the result of above validade fn
+  if (!errors.isEmpty()){
+    return res.status(422).send({errors: errors.array()});
+  }
+
+  const { name, email } = req.body;
+
+  User.create({
+    name,
+    email,
+    status: 'enabled',
+  }).then(user => res.status(200).send(user));
+}
+
+module.exports = UserController;

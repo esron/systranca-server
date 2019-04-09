@@ -48,11 +48,21 @@ UserController.createUser = (req, res) => {
 
   const { name, email } = req.body;
 
-  User.create({
-    name,
-    email,
-    status: 'enabled',
-  }).then(user => res.status(200).send(user));
+  User.create({ name, email, status: 'enabled' })
+    .then(user => res.status(200).send(user))
+    .catch(err => res.status(500).send({
+      error: err,
+      message: 'There was a problem creating the user.',
+    }));
+}
+
+UserController.listUsers = (_, res) => {
+  User.find({}, { password: 0 })
+    .then((users) => res.status(200).send(users))
+    .catch(err => res.status(500).send({
+      error: err,
+      message: 'There was a problem finding the users.'
+    }));
 }
 
 module.exports = UserController;

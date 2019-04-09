@@ -25,13 +25,22 @@ UserController.validate = (method) => {
           isEmail: {
             errorMessage: 'Invalid Email',
           },
+          custom: {
+            options: (value) => {
+              return User.find({email: value}).then(user => {
+                if (user.length) {
+                  return Promise.reject('Email already in use');
+                }
+              });
+            }
+          }
         }
       });
     }
   }
 }
 
-UserController.createUser = (req, res, next) => {
+UserController.createUser = (req, res) => {
   const errors = validationResult(req) // To get the result of above validade fn
   if (!errors.isEmpty()){
     return res.status(422).send({errors: errors.array()});

@@ -15,4 +15,10 @@ router.get(
   userController.listUsers
 );
 
+
+router.get(
+  '/:userId',
+  userController.validate('getUser'),
+  userController.getUser
+)
 module.exports = router;

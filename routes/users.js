@@ -23,7 +23,7 @@ router.get(
 );
 
 /* Update a user. */
-router.post(
+router.put(
   '/:userId',
   userController.validate('updateUser'),
   userController.updateUser

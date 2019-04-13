@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/UserController');
+const phoneController = require('../controllers/PhoneController');
 
 /* Creates a new user. */
 router.post(
@@ -27,6 +28,11 @@ router.put(
   '/:userId',
   userController.validate('updateUser'),
   userController.updateUser
+);
+
+router.post(
+  '/:userId/phones',
+  phoneController.setUserPhones
 );
 
 module.exports = router;

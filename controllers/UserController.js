@@ -165,7 +165,6 @@ UserController.updateUser = (req, res) => {
   const { userId } = req.params;
   const toUpdate = req.body;
 
-
   User.findByIdAndUpdate(userId, toUpdate, { new: true })
     .then(user => {
       if (!user) {

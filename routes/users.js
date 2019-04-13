@@ -32,6 +32,7 @@ router.put(
 
 router.post(
   '/:userId/phones',
+  phoneController.validate('setUserPhones'),
   phoneController.setUserPhones
 );
 

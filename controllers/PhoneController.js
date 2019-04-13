@@ -68,6 +68,10 @@ PhoneController.setUserPhones = (req, res) => {
 
       return res.status(200).send({ data: user });
     })
+    .catch(err => res.status(500).send({
+      errors: err,
+      messafe: 'There was a problem finding the users.',
+    }));
 };
 
 module.exports = PhoneController;

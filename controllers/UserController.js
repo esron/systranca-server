@@ -152,7 +152,7 @@ UserController.getUser = (req, res) => {
     .catch(err => res.status(500).send({
       errors: err,
       message: 'There was a problem finding the users.'
-    }))
+    }));
 };
 
 UserController.updateUser = (req, res) => {

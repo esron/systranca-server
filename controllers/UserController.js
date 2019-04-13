@@ -97,7 +97,7 @@ UserController.validate = (method) => {
       });
     }
   }
-}
+};
 
 UserController.createUser = (req, res) => {
   const errors = validationResult(req);
@@ -114,16 +114,16 @@ UserController.createUser = (req, res) => {
       errors: err,
       message: 'There was a problem creating the user.',
     }));
-}
+};
 
 UserController.listUsers = (_, res) => {
-  User.find({}, { password: 0 })
+  User.find({})
     .then((users) => res.status(200).send({ data: users }))
     .catch(err => res.status(500).send({
       errors: err,
       message: 'There was a problem finding the users.'
     }));
-}
+};
 
 UserController.getUser = (req, res) => {
   const errors = validationResult(req);
@@ -134,7 +134,7 @@ UserController.getUser = (req, res) => {
 
   const { userId } = req.params;
 
-  User.findById(userId, '-password')
+  User.findById(userId)
     .then(user => {
       if (!user) {
         return res.status(404).send({
@@ -144,7 +144,7 @@ UserController.getUser = (req, res) => {
             value: userId,
             msg: 'User not found',
           },
-        })
+        });
       }
 
       return res.status(200).send({ data: user })
@@ -153,7 +153,7 @@ UserController.getUser = (req, res) => {
       errors: err,
       message: 'There was a problem finding the users.'
     }))
-}
+};
 
 UserController.updateUser = (req, res) => {
   const errors = validationResult(req);
@@ -185,6 +185,6 @@ UserController.updateUser = (req, res) => {
       errors: err,
       message: 'There was a problem finding the users.'
     }))
-}
+};
 
 module.exports = UserController;

@@ -1,7 +1,8 @@
 const express = require('express');
-const router = express.Router();
 const userController = require('../controllers/UserController');
 const phoneController = require('../controllers/PhoneController');
+
+const router = express.Router();
 
 /* Creates a new user. */
 router.post(

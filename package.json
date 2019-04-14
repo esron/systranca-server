@@ -15,7 +15,8 @@
     "express": "~4.16.0",
     "express-validator": "^5.3.1",
     "mongoose": "^5.4.22",
-    "morgan": "~1.9.0"
+    "morgan": "~1.9.0",
+    "mqtt": "^2.18.8"
   },
   "devDependencies": {
     "eslint": "^5.16.0",

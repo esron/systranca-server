@@ -9,6 +9,7 @@ const config = require('./config');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const doorRouter = require('./routes/door');
 
 const app = express();
 
@@ -17,7 +18,7 @@ const connectUri = `mongodb://${config.dbUser}:${config.dbPassword}@${config.dbH
 mongoose.connect(
   connectUri,
   {useNewUrlParser: true}
-)
+);
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -28,5 +29,6 @@ app.use(expressValidator());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/door', doorRouter);
 
 module.exports = app;

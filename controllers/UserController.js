@@ -73,12 +73,30 @@ UserController.validate = (method) => {
             errorMessage: 'Invalid Email',
           },
           custom: {
-            options: (value) => {
-              return User.find({email: value}).then(user => {
-                if (user.length) {
+            options: (value, { req }) => {
+              return User.findOne({ email: value }).then(user => {
+                if (user && user.id !== req.params.userId) {
                   return Promise.reject('Email already in use');
                 }
               });
+            },
+          },
+        },
+        pinCode: {
+          in: ['body'],
+          optional: true,
+          isNumeric: {
+            errorMessage: 'Pin code field must be numeric',
+          },
+          isEmpty: {
+            errorMessage: 'Pin code field cannot be empty',
+            negated: true,
+          },
+          isLength: {
+            errorMessage : 'Pin code field must be between 4 and 6 characters',
+            options: {
+              min: 4,
+              max: 6,
             },
           },
         },
@@ -165,7 +183,10 @@ UserController.updateUser = (req, res) => {
   const { userId } = req.params;
   const toUpdate = req.body;
 
-  User.findByIdAndUpdate(userId, toUpdate, { new: true })
+  User.findOneAndUpdate({ _id: userId }, toUpdate, {
+    new: true,
+    useFindAndModify: false,
+  })
     .then(user => {
       if (!user) {
         return res.status(404).send({

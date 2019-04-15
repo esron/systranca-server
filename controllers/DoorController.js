@@ -21,9 +21,9 @@ DoorController.openDoor = (req, res) => {
       });
     }
 
-      mqttClient.publish('hello', 'Open the door', function() {
-        return res.status(200).send({ data: `Door opened by ${user.name}` });
-      })
+    mqttClient.publish('hello', 'Open the door', function() {
+      return res.status(200).send({ data: `Door opened by ${user.name}` });
+    });
   })
 }
 

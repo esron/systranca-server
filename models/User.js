@@ -13,6 +13,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     select: false,
   },
+  pinCode: {
+    type: String,
+    select: false,
+  },
   status: String,
   phones: [PhoneSchema],
 });

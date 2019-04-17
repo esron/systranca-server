@@ -6,9 +6,9 @@ const mqttClient = mqtt.connect('mqtt://localhost');
 const DoorController = {};
 
 DoorController.openDoor = (req, res) => {
-  const { userId } = req.body;
+  const { userId, pinCode } = req.body;
 
-  User.findById(userId)
+  User.findById(userId, 'pinCode name')
   .then(user => {
     if (!user) {
       return res.status(404).send({
@@ -19,6 +19,10 @@ DoorController.openDoor = (req, res) => {
           msg: 'User not found',
         },
       });
+    }
+
+    if (pinCode !== user.pinCode) {
+      return res.status(403).send('Incorrect pin code');
     }
 
     mqttClient.publish('hello', 'Open the door', function() {

@@ -134,8 +134,15 @@ UserController.createUser = (req, res) => {
     }));
 };
 
-UserController.listUsers = (_, res) => {
-  User.find({})
+UserController.listUsers = (req, res) => {
+  const { email } = req.query;
+
+  const filter = {}
+  if (email) {
+    filter['email'] = email;
+  }
+
+  User.find(filter)
     .then((users) => res.status(200).send({ data: users }))
     .catch(err => res.status(500).send({
       errors: err,

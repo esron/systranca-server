@@ -1,26 +1,26 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 const PhoneSchema = new mongoose.Schema({
   model: String,
   phoneId: String,
-  status: String,
-});
+  status: String
+})
 
 const UserSchema = new mongoose.Schema({
   name: String,
   email: String,
   password: {
     type: String,
-    select: false,
+    select: false
   },
   pinCode: {
     type: String,
-    select: false,
+    select: false
   },
   status: String,
-  phones: [PhoneSchema],
-});
+  phones: [PhoneSchema]
+})
 
-mongoose.model('User', UserSchema);
+mongoose.model('User', UserSchema)
 
-module.exports = mongoose.model('User');
+module.exports = mongoose.model('User')

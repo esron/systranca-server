@@ -1,8 +1,8 @@
-const { param, validationResult, checkSchema } = require('express-validator/check');
+const { param, validationResult, checkSchema } = require('express-validator/check')
 
-const User = require('../models/User');
+const User = require('../models/User')
 
-const UserController = {};
+const UserController = {}
 
 UserController.validate = (method) => {
   switch (method) {
@@ -11,49 +11,48 @@ UserController.validate = (method) => {
         name: {
           in: ['body'],
           exists: {
-            errorMessage: 'Name field is required',
+            errorMessage: 'Name field is required'
           },
           isEmpty: {
             errorMessage: 'Name field cannot be empty',
-            negated: true,
+            negated: true
           },
           trim: true,
           escape: true,
-          stripLow: true,
+          stripLow: true
         },
         email: {
           in: ['body'],
           exists: {
-            errorMessage: 'Email field is required',
+            errorMessage: 'Email field is required'
           },
           isEmail: {
-            errorMessage: 'Invalid Email',
+            errorMessage: 'Invalid Email'
           },
           custom: {
-            options: (value) => {
-              return User.find({email: value}).then(user => {
-                if (user.length) {
-                  return Promise.reject('Email already in use');
-                }
-              });
+            options: async (value) => {
+              const user = await User.find({ email: value })
+              if (user.length) {
+                return Promise.reject(new Error('Email already in use'))
+              }
             }
-          },
-        },
-      });
+          }
+        }
+      })
     }
     case 'getUser': {
       return [
         param('userId', 'Invalid userId')
-          .isMongoId(),
-      ];
+          .isMongoId()
+      ]
     }
     case 'updateUser': {
       return checkSchema({
         userId: {
           in: ['params'],
           isMongoId: {
-            errorMessage: 'Invalid userId',
-          },
+            errorMessage: 'Invalid userId'
+          }
         },
         name: {
           in: ['body'],
@@ -63,83 +62,82 @@ UserController.validate = (method) => {
           stripLow: true,
           isEmpty: {
             errorMessage: 'Name field cannot be empty',
-            negated: true,
-          },
+            negated: true
+          }
         },
         email: {
           in: ['body'],
           optional: true,
           isEmail: {
-            errorMessage: 'Invalid Email',
+            errorMessage: 'Invalid Email'
           },
           custom: {
-            options: (value, { req }) => {
-              return User.findOne({ email: value }).then(user => {
-                if (user && user.id !== req.params.userId) {
-                  return Promise.reject('Email already in use');
-                }
-              });
-            },
-          },
+            options: async (value, { req }) => {
+              const user = await User.findOne({ email: value })
+              if (user && user.id !== req.params.userId) {
+                return Promise.reject(new Error('Email already in use'))
+              }
+            }
+          }
         },
         pinCode: {
           in: ['body'],
           optional: true,
           isNumeric: {
-            errorMessage: 'Pin code field must be numeric',
+            errorMessage: 'Pin code field must be numeric'
           },
           isEmpty: {
             errorMessage: 'Pin code field cannot be empty',
-            negated: true,
+            negated: true
           },
           isLength: {
-            errorMessage : 'Pin code field must be between 4 and 6 characters',
+            errorMessage: 'Pin code field must be between 4 and 6 characters',
             options: {
               min: 4,
-              max: 6,
-            },
-          },
+              max: 6
+            }
+          }
         },
         status: {
           in: ['body'],
           optional: true,
           isIn: {
             options: ['enabled', 'disabled'],
-            errorMessage: `Status must be one of the following ['enabled', 'disabled']`,
+            errorMessage: `Status must be one of the following ['enabled', 'disabled']`
           },
           isEmpty: {
             errorMessage: 'Name field cannot be empty',
-            negated: true,
-          },
-        },
-      });
+            negated: true
+          }
+        }
+      })
     }
   }
-};
+}
 
 UserController.createUser = (req, res) => {
-  const errors = validationResult(req);
+  const errors = validationResult(req)
 
-  if(!errors.isEmpty()) {
+  if (!errors.isEmpty()) {
     return res.status(422).send({ errors: errors.array() })
   }
 
-  const { name, email } = req.body;
+  const { name, email } = req.body
 
   User.create({ name, email, status: 'enabled' })
     .then(user => res.status(200).send({ data: user }))
     .catch(err => res.status(500).send({
       errors: err,
-      message: 'There was a problem creating the user.',
-    }));
-};
+      message: 'There was a problem creating the user.'
+    }))
+}
 
 UserController.listUsers = (req, res) => {
-  const { email } = req.query;
+  const { email } = req.query
 
   const filter = {}
   if (email) {
-    filter['email'] = email;
+    filter['email'] = email
   }
 
   User.find(filter)
@@ -147,17 +145,17 @@ UserController.listUsers = (req, res) => {
     .catch(err => res.status(500).send({
       errors: err,
       message: 'There was a problem finding the users.'
-    }));
-};
+    }))
+}
 
 UserController.getUser = (req, res) => {
-  const errors = validationResult(req);
+  const errors = validationResult(req)
 
-  if(!errors.isEmpty()) {
+  if (!errors.isEmpty()) {
     return res.status(422).send({ errors: errors.array() })
   }
 
-  const { userId } = req.params;
+  const { userId } = req.params
 
   User.findById(userId)
     .then(user => {
@@ -167,9 +165,9 @@ UserController.getUser = (req, res) => {
             location: 'params',
             param: 'userId',
             value: userId,
-            msg: 'User not found',
-          },
-        });
+            msg: 'User not found'
+          }
+        })
       }
 
       return res.status(200).send({ data: user })
@@ -177,22 +175,22 @@ UserController.getUser = (req, res) => {
     .catch(err => res.status(500).send({
       errors: err,
       message: 'There was a problem finding the users.'
-    }));
-};
+    }))
+}
 
 UserController.updateUser = (req, res) => {
-  const errors = validationResult(req);
+  const errors = validationResult(req)
 
-  if(!errors.isEmpty()) {
+  if (!errors.isEmpty()) {
     return res.status(422).send({ errors: errors.array() })
   }
 
-  const { userId } = req.params;
-  const toUpdate = req.body;
+  const { userId } = req.params
+  const toUpdate = req.body
 
   User.findOneAndUpdate({ _id: userId }, toUpdate, {
     new: true,
-    useFindAndModify: false,
+    useFindAndModify: false
   })
     .then(user => {
       if (!user) {
@@ -201,17 +199,17 @@ UserController.updateUser = (req, res) => {
             location: 'params',
             param: 'userId',
             value: userId,
-            msg: 'User not found',
-          },
-        });
+            msg: 'User not found'
+          }
+        })
       }
 
-      return res.status(200).send({ data: user });
+      return res.status(200).send({ data: user })
     })
     .catch(err => res.status(500).send({
       errors: err,
       message: 'There was a problem finding the users.'
     }))
-};
+}
 
-module.exports = UserController;
+module.exports = UserController

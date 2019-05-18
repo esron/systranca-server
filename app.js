@@ -10,6 +10,7 @@ const config = require('./config')
 const indexRouter = require('./routes/index')
 const usersRouter = require('./routes/users')
 const doorRouter = require('./routes/door')
+const authRouter = require('./routes/auth')
 
 const app = express()
 
@@ -30,5 +31,6 @@ app.use(expressValidator())
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
 app.use('/door', doorRouter)
+app.use('/api/auth', authRouter)
 
 module.exports = app

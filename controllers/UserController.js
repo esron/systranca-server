@@ -136,6 +136,7 @@ UserController.listUsers = (req, res) => {
   const { email } = req.query
 
   const filter = {}
+
   if (email) {
     filter['email'] = email
   }

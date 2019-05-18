@@ -24,4 +24,16 @@ cp .env.example .env
 
 Update the variables to correspond your environment.
 
+Generate the RSA keys:
+
+```bash
+npm run key:generate
+```
+
+or
+
+```bash
+node keys.js
+```
+
 This project doesn't have a front-end, yet.

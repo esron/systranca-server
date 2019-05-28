@@ -4,7 +4,6 @@ const User = require('./models/User')
 
 const connectUri = `mongodb://${config.dbUser}:${config.dbPassword}@${config.dbHost}:${config.dbPort}/${config.dbName}?authSource=admin&w=1`
 
-console.log("TCL: connectUri", connectUri)
 mongoose.connect(
   connectUri,
   { useNewUrlParser: true }

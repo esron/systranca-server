@@ -7,7 +7,8 @@
   },
   "scripts": {
     "start": "node ./bin/www",
-    "key:generate": "node keys.js"
+    "key:generate": "node keys.js",
+    "test": "standard"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",

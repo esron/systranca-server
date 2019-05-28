@@ -1,6 +1,7 @@
 # SysTranca Server Project
 
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![Build Status](https://travis-ci.com/esron/systranca-server.svg?branch=master)](https://travis-ci.com/esron/systranca-server)
 
 This project was born when I came too early at my work building. We are a small startup on Vale do São Francisco, Brazil.
 

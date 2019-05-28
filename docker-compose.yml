@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  node:
+    image: node:lts-alpine
+    user: node
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./:/home/node/app
+    ports:
+      - 3000:3000
+    command: npx nodemon
+
+  mongo:
+    image: mongo:4.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS:-example}
+    volumes:
+      - dbdata:/data/db
+    ports:
+      - 27017:27017
+
+volumes:
+  dbdata:
+

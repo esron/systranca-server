@@ -14,7 +14,7 @@ const authRouter = require('./routes/auth')
 
 const app = express()
 
-const connectUri = `mongodb://${config.dbUser}:${config.dbPassword}@${config.dbHost}:${config.dbPort}/${config.dbName}`
+const connectUri = `mongodb://${config.dbUser}:${config.dbPassword}@${config.dbHost}:${config.dbPort}/${config.dbName}?authSource=admin&w=1`
 
 mongoose.connect(
   connectUri,

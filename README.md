@@ -37,4 +37,10 @@ or
 node keys.js
 ```
 
+Create the super user
+
+```
+node initDatabase.js
+```
+
 This project doesn't have a front-end, yet.

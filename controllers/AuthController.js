@@ -22,7 +22,7 @@ AuthController.issueToken = (req, res) => {
   })
 }
 
-AuthController.validateToken = (req, res) => {
+AuthController.validateToken = (req, res, next) => {
   jwt.verify(req.headers['x-access-token'], process.env.SECRET, function (
     err,
     decoded

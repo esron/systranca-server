@@ -51,11 +51,11 @@ AuthController.issueToken = (req, res) => {
 
   User.findOne({ name, password })
     .then(user => {
-        var tokenData = { id: user.id, name: user.name }
+      var tokenData = { id: user.id, name: user.name }
 
-        var token = jwt.sign(tokenData, process.env.SECRET, { expiresIn: '1h' })
+      var token = jwt.sign(tokenData, process.env.SECRET, { expiresIn: '1h' })
 
-        res.status(200).send({ token })
+      res.status(200).send({ token })
     })
     .catch(err => res.status(401).send({
       errors: err,

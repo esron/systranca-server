@@ -9,13 +9,13 @@ AuthController.validate = (method) => {
   switch (method) {
     case 'issueToken': {
       return checkSchema({
-        name: {
+        email: {
           in: ['body'],
           exists: {
-            errorMessage: 'Name field is required'
+            errorMessage: 'Email field is required'
           },
           isEmpty: {
-            errorMessage: 'Name field cannot be empty',
+            errorMessage: 'Email field cannot be empty',
             negated: true
           },
           trim: true,
@@ -47,11 +47,11 @@ AuthController.issueToken = (req, res) => {
     return res.status(401).send({ errors: errors.array() })
   }
 
-  const { name, password } = req.body
+  const { email, password } = req.body
 
-  User.findOne({ name, password })
+  User.findOne({ email, password })
     .then(user => {
-      var tokenData = { id: user.id, name: user.name }
+      var tokenData = { id: user.id, email: user.email }
 
       var token = jwt.sign(tokenData, process.env.SECRET, { expiresIn: '1h' })
 
@@ -59,7 +59,7 @@ AuthController.issueToken = (req, res) => {
     })
     .catch(err => res.status(401).send({
       errors: err,
-      message: 'Invalid username or password.'
+      message: 'Invalid email or password.'
     }))
 }
 

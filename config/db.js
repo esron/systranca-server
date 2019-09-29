@@ -9,7 +9,7 @@ module.exports = {
       } else if (dbHost && dbPort && dbName) {
         connectUri = `mongodb://${dbHost}:${dbPort}/${dbName}?authSource=admin&w=1`;
       } else {
-        connectUri = 'mongodb://localhost:27017';
+        connectUri = 'mongodb://localhost:27017/systranca';
       }
       return connectUri;
     }

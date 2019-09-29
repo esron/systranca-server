@@ -7,6 +7,7 @@
   },
   "scripts": {
     "start": "node ./bin/www",
+    "dev": "nodemon ./bin/www",
     "key:generate": "node keys.js",
     "test": "standard"
   },
@@ -22,7 +23,7 @@
   },
   "devDependencies": {
     "eslint-plugin-node": "^8.0.1",
-    "nodemon": "^1.19.1",
+    "nodemon": "^1.19.2",
     "standard": "^12.0.1"
   }
 }

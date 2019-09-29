@@ -5,8 +5,6 @@ const logger = require('morgan')
 const mongoose = require('mongoose')
 const expressValidator = require('express-validator')
 
-const config = require('./config')
-
 const indexRouter = require('./routes/index')
 const usersRouter = require('./routes/users')
 const doorRouter = require('./routes/door')
@@ -14,11 +12,13 @@ const authRouter = require('./routes/auth')
 
 const app = express()
 
-const connectUri = `mongodb://${config.dbUser}:${config.dbPassword}@${config.dbHost}:${config.dbPort}/${config.dbName}?authSource=admin&w=1`
+const dbConfig = require('./config/db.js')
+
+const connectUri = dbConfig.getConnectionURI();
 
 mongoose.connect(
   connectUri,
-  { useNewUrlParser: true }
+  { useNewUrlParser: true },
 )
 
 app.use(logger('dev'))

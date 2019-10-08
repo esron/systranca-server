@@ -38,10 +38,22 @@ or
 node keys.js
 ```
 
+-----
+
+### SETUP
+
+Run docker
+
+```bash
+docker-compose up # verify first you are in sudo group.
+```
+
+Docker tutorial [here](https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-16-04)
+
 Create the super user
 
-```
-node initDatabase.js
+```bash
+docker-compose exec node node initDatabase.js
 ```
 
 This project doesn't have a front-end, yet.

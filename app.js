@@ -18,7 +18,7 @@ const connectUri = dbConfig.getConnectionURI()
 
 mongoose.connect(
   connectUri,
-  { useNewUrlParser: true },
+  { useNewUrlParser: true }
 )
 
 app.use(logger('dev'))

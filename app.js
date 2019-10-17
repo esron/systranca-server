@@ -14,7 +14,7 @@ const app = express()
 
 const dbConfig = require('./config/db.js')
 
-const connectUri = dbConfig.getConnectionURI();
+const connectUri = dbConfig.getConnectionURI()
 
 mongoose.connect(
   connectUri,

@@ -2,12 +2,12 @@ const mongoose = require('mongoose')
 const User = require('./models/User')
 const dbConfig = require('./config/db.js')
 
-const connectUri = dbConfig.getConnectionURI();
+const connectUri = dbConfig.getConnectionURI()
 
 mongoose.connect(
   connectUri,
   { useNewUrlParser: true },
-  { useUnifiedTopology: true },
+  { useUnifiedTopology: true }
 )
   .then(
     () => {

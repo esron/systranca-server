@@ -103,7 +103,7 @@ UserController.validate = (method) => {
           optional: true,
           isIn: {
             options: ['enabled', 'disabled'],
-            errorMessage: `Status must be one of the following ['enabled', 'disabled']`
+            errorMessage: 'Status must be one of the following [\'enabled\', \'disabled\']'
           },
           isEmpty: {
             errorMessage: 'Name field cannot be empty',
@@ -138,7 +138,7 @@ UserController.listUsers = (req, res) => {
   const filter = {}
 
   if (email) {
-    filter['email'] = email
+    filter.email = email
   }
 
   User.find(filter)

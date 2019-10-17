@@ -1,7 +1,7 @@
 const { generateKeyPair } = require('crypto')
 const fs = require('fs')
 
-const { secret } = require('./config')
+const { secret } = require('./config/constants')
 
 generateKeyPair('rsa', {
   modulusLength: 1024,

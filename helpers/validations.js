@@ -1,5 +1,7 @@
 module.exports = {
-  validatePinCode (pincode) {
-    return pincode.length === 6 && /^\d+$/.test(pincode)
+  validatePinCode (pinCode, confirmation) {
+    return pinCode === confirmation &&
+    pinCode.length === 6 &&
+    /^\d+$/.test(pinCode)
   }
 }

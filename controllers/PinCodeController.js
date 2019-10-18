@@ -52,18 +52,18 @@ module.exports = {
   async deletePinCode (req, res) {
     const { userId } = req.params
     const { pinCode } = req.body
-      try {
-        await helper.authenticatePinCode(userId, pinCode)
-        await helper.updatePinCode(userId, pinCode)
-        return res.status(200).json({
-          success: true,
-          message: 'Pin Code deleted!'
-        })
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message: error.message
-        })
-      }
+    try {
+      await helper.authenticatePinCode(userId, pinCode)
+      await helper.updatePinCode(userId, pinCode)
+      return res.status(200).json({
+        success: true,
+        message: 'Pin Code deleted!'
+      })
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message
+      })
+    }
   }
 }

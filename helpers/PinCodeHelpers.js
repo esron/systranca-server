@@ -44,7 +44,7 @@ module.exports = {
           if (res) {
             resolve(true)
           } else {
-            reject(new Error("Pin Code authentication error!"))
+            reject(new Error('Pin Code authentication error!'))
           }
         }).catch((err) => {
           reject(err)
@@ -58,7 +58,7 @@ module.exports = {
           if (res) {
             resolve(true)
           } else {
-            reject(new Error("Pin Code authentication error!"))
+            reject(new Error('Pin Code authentication error!'))
           }
         }).catch((err) => {
           reject(err)

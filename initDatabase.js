@@ -1,12 +1,13 @@
 const mongoose = require('mongoose')
-const config = require('./config')
 const User = require('./models/User')
+const dbConfig = require('./config/db.js')
 
-const connectUri = `mongodb://${config.dbUser}:${config.dbPassword}@${config.dbHost}:${config.dbPort}/${config.dbName}?authSource=admin&w=1`
+const connectUri = dbConfig.getConnectionURI()
 
 mongoose.connect(
   connectUri,
-  { useNewUrlParser: true }
+  { useNewUrlParser: true },
+  { useUnifiedTopology: true }
 )
   .then(
     () => {

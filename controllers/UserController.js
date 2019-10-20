@@ -4,7 +4,7 @@ const User = require('../models/User')
 
 const { validatePinCode } = require('../helpers/validations')
 
-const pinCodeHelper = require('../helpers/PinCodeHelpers');
+const pinCodeHelper = require('../helpers/PinCodeHelpers')
 
 module.exports = {
   validate  (method) {

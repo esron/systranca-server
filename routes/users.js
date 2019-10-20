@@ -1,7 +1,6 @@
 const express = require('express')
 const userController = require('../controllers/UserController')
 const phoneController = require('../controllers/PhoneController')
-const pinController = require('../controllers/PinCodeController')
 
 const router = express.Router()
 
@@ -38,19 +37,9 @@ router.post(
   phoneController.setUserPhones
 )
 
-router.post(
-  '/:userId/createPin',
-  pinController.createPinCode
-)
-
-router.post(
+router.put(
   '/:userId/updatePin',
-  pinController.updatePinCode
-)
-
-router.post(
-  '/:userId/deletePin',
-  pinController.deletePinCode
+  userController.updatePinCode
 )
 
 module.exports = router

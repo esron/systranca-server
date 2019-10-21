@@ -215,6 +215,29 @@ module.exports = {
         message: 'There was a problem finding the users.'
       }))
   },
+  async createPinCode (req, res) {
+    const { userId } = req.params
+    const { pinCode, pinCodeConfirmation } = req.body
+    if (validatePinCode(pinCode, pinCodeConfirmation)) {
+      try {
+        await pinCodeHelper.createPinCode(userId, pinCode)
+        return res.status(200).json({
+          success: true,
+          message: 'Pin Code created!'
+        })
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: error.message
+        })
+      }
+    } else {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid Pin Code! Please, make sure it is valid!'
+      })
+    }
+  },
   async updatePinCode (req, res) {
     const { userId } = req.params
     const { pinCode, newPinCode, newPinCodeConfirmation } = req.body

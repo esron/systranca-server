@@ -37,8 +37,13 @@ router.post(
   phoneController.setUserPhones
 )
 
+router.post(
+  '/:userId/pinCode',
+  userController.createPinCode
+)
+
 router.put(
-  '/:userId/updatePin',
+  '/:userId/pinCode',
   userController.updatePinCode
 )
 

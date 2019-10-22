@@ -37,4 +37,14 @@ router.post(
   phoneController.setUserPhones
 )
 
+router.post(
+  '/:userId/pinCode',
+  userController.createPinCode
+)
+
+router.put(
+  '/:userId/pinCode',
+  userController.updatePinCode
+)
+
 module.exports = router

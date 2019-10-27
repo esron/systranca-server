@@ -9,10 +9,7 @@ const PhoneSchema = new mongoose.Schema({
 const UserSchema = new mongoose.Schema({
   name: String,
   email: String,
-  password: {
-    type: String,
-    select: false
-  },
+  password: String,
   pinCode: {
     type: String,
     select: false

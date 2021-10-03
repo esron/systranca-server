@@ -2,7 +2,7 @@ version: '3'
 
 services:
   node:
-    image: node:lts-alpine
+    image: node:14-alpine3.14
     user: node
     working_dir: /home/node/app
     environment:
@@ -12,6 +12,8 @@ services:
     ports:
       - 3000:3000
     command: npx nodemon
+    depends_on:
+      - mongo
 
   mongo:
     image: mongo:4.0

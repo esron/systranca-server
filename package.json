@@ -5,6 +5,11 @@
   "engines": {
     "node": ">=14.0.0"
   },
+  "standard": {
+    "env": [
+      "jest"
+    ]
+  },
   "scripts": {
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",

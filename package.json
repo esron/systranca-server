@@ -12,19 +12,19 @@
     "test": "standard"
   },
   "dependencies": {
-    "cookie-parser": "~1.4.3",
+    "cookie-parser": "^1.4.5",
     "debug": "~2.6.9",
     "dotenv": "^7.0.0",
     "express": "~4.16.0",
     "express-validator": "^5.3.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.4",
+    "mongoose": "^5.13.12",
     "morgan": "~1.9.0",
     "mqtt": "^4.2.8"
   },
   "devDependencies": {
     "eslint-plugin-node": "^8.0.1",
-    "nodemon": "^2.0.13",
+    "nodemon": "^2.0.14",
     "standard": "^12.0.1"
   }
 }

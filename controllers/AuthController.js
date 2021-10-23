@@ -50,9 +50,9 @@ module.exports = {
 
     User.findOne({ email, password })
       .then(user => {
-        var tokenData = { id: user.id, email: user.email }
+        const tokenData = { id: user.id, email: user.email }
 
-        var token = jwt.sign(tokenData, process.env.SECRET, { expiresIn: '1h' })
+        const token = jwt.sign(tokenData, process.env.SECRET, { expiresIn: '1h' })
 
         res.status(200).send({ token })
       })

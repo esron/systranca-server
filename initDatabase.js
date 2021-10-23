@@ -28,7 +28,7 @@ const adminUser = {
 User.findOne({ email: adminUser.email })
   .then(user => {
     if (!user) return User.create(adminUser)
-    else console.log(`Skipping admin user creation, since is already created`)
+    else console.log('Skipping admin user creation, since is already created')
   })
   .then(createdUser => {
     if (createdUser) console.log(`User ${createdUser.name} created successfully`)

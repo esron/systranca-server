@@ -9,7 +9,8 @@
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "key:generate": "node keys.js",
-    "test": "standard"
+    "lint": "standard",
+    "test": "jest"
   },
   "dependencies": {
     "cookie-parser": "^1.4.5",
@@ -24,7 +25,8 @@
   },
   "devDependencies": {
     "eslint-plugin-node": "^8.0.1",
+    "jest": "^27.3.1",
     "nodemon": "^2.0.14",
-    "standard": "^12.0.1"
+    "standard": "^16.0.4"
   }
 }

@@ -15,7 +15,7 @@
     "dev": "nodemon ./bin/www",
     "key:generate": "node keys.js",
     "lint": "standard",
-    "test": "jest"
+    "test": "standard && jest"
   },
   "dependencies": {
     "cookie-parser": "^1.4.5",

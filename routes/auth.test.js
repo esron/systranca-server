@@ -1,7 +1,11 @@
 const request = require('supertest')
 const app = require('../app')
+const User = require('../models/User')
 
 describe('POST /api/auth/token', () => {
+  afterEach(() => {
+    jest.resetAllMocks()
+  })
   test('validations are working', () => {
     return request(app)
       .post('/api/auth/token')
@@ -36,8 +40,7 @@ describe('POST /api/auth/token', () => {
   })
 
   test('sends authentication error', () => {
-    const User = require('../models/User')
-    const spy = jest.spyOn(User, 'findOne').mockImplementation(() => Promise.resolve(null))
+    jest.spyOn(User, 'findOne').mockImplementation(() => Promise.resolve(null))
 
     return request(app)
       .post('/api/auth/token')
@@ -51,7 +54,27 @@ describe('POST /api/auth/token', () => {
         expect(response.body).toStrictEqual({
           errors: [{ msg: 'Invalid email or password.' }]
         })
-        spy.mockRestore()
+      })
+  })
+
+  test('issues a valid token', () => {
+    jest.spyOn(User, 'findOne').mockImplementation(() => Promise.resolve({
+      id: 1,
+      email: 'valid@valid.com'
+    }))
+
+    return request(app)
+      .post('/api/auth/token')
+      .set('Accept', 'applications/json')
+      .send({
+        email: 'valid@valid.com',
+        password: 'valid'
+      })
+      .then(response => {
+        expect(response.statusCode).toBe(200)
+        expect(response.body).toMatchObject({
+          token: expect.any(String)
+        })
       })
   })
 })

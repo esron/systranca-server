@@ -34,4 +34,24 @@ describe('POST /api/auth/token', () => {
         })
       })
   })
+
+  test('sends authentication error', () => {
+    const User = require('../models/User')
+    const spy = jest.spyOn(User, 'findOne').mockImplementation(() => Promise.resolve(null))
+
+    return request(app)
+      .post('/api/auth/token')
+      .set('Accept', 'applications/json')
+      .send({
+        email: 'notvalid@notvalid.com',
+        password: 'not_valid'
+      })
+      .then(response => {
+        expect(response.statusCode).toBe(401)
+        expect(response.body).toStrictEqual({
+          errors: [{ msg: 'Invalid email or password.' }]
+        })
+        spy.mockRestore()
+      })
+  })
 })

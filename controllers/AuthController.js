@@ -50,16 +50,21 @@ module.exports = {
 
     User.findOne({ email, password })
       .then(user => {
+        if (user === null) {
+          return res.status(401).send({
+            errors: [{ msg: 'Invalid email or password.' }]
+          })
+        }
+
         const tokenData = { id: user.id, email: user.email }
 
         const token = jwt.sign(tokenData, process.env.SECRET, { expiresIn: '1h' })
 
         res.status(200).send({ token })
       })
-      .catch(err => res.status(401).send({
-        errors: err,
-        message: 'Invalid email or password.'
-      }))
+      .catch(err => {
+        throw new Error(err)
+      })
   },
 
   validateToken (req, res, next) {

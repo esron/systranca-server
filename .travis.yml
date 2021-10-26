@@ -8,3 +8,6 @@ branches:
 
 # keep the npm cache around to speed up installs
 cache: npm
+
+before_install:
+  - npm i -g npm@8.1.1

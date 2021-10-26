@@ -50,6 +50,15 @@ docker-compose up # verify first you are in sudo group.
 
 Docker tutorial [here](https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-16-04)
 
+If you see this error when to execute node container:
+```bash
+Internal watch failed: ENOSPC: System limit for number of file watchers reached, watch '/home/node/app/README.md'
+```
+execute this to fix it:
+```bash
+sudo sysctl fs.inotify.max_user_watches=582222 && sudo sysctl -p
+```
+
 Create the super user
 
 ```bash

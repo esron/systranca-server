@@ -10,7 +10,7 @@ services:
     volumes:
       - ./:/home/node/app
     ports:
-      - ${PORT}:${PORT}
+      - ${PORT:-3000}:${PORT:-3000}
     command: npx nodemon
     depends_on:
       - mongo

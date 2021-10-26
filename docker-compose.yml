@@ -22,6 +22,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS:-example}
     volumes:
       - dbdata:/data/db
+    ports:
+      - ${MONGODB_PORT:-27017}:27017
 
 volumes:
   dbdata:

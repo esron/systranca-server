@@ -1,6 +1,7 @@
 const { validationResult, checkSchema } = require('express-validator/check')
 const jwt = require('jsonwebtoken')
 
+const { secret } = require('../config/constants')
 const User = require('../models/User')
 
 module.exports = {
@@ -58,7 +59,7 @@ module.exports = {
 
         const tokenData = { id: user.id, email: user.email }
 
-        const token = jwt.sign(tokenData, process.env.SECRET, { expiresIn: '1h' })
+        const token = jwt.sign(tokenData, secret, { expiresIn: '1h' })
 
         res.status(200).send({ token })
       })

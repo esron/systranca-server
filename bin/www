@@ -9,9 +9,19 @@
  * Module dependencies.
  */
 
+const mongoose = require('mongoose');
 const app = require('../app');
 const debug = require('debug')('systranca-server:server');
 const http = require('http');
+
+const dbConfig = require('../config/db')
+
+const connectUri = dbConfig.getConnectionURI()
+
+mongoose.connect(
+  connectUri,
+  { useNewUrlParser: true, useUnifiedTopology: true }
+)
 
 /**
  * Get port from environment and store in Express.

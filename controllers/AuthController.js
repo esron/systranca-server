@@ -63,9 +63,6 @@ module.exports = {
 
         res.status(200).send({ token })
       })
-      .catch(err => {
-        throw new Error(err)
-      })
   },
 
   validateToken (req, res, next) {

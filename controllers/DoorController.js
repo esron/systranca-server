@@ -1,12 +1,11 @@
 const mqtt = require('mqtt')
 const User = require('../models/User')
 
-const mqttClient = mqtt.connect('mqtt://localhost')
-
 module.exports = {
 
   openDoor (req, res) {
     const { userId, pinCode } = req.body
+    const mqttClient = mqtt.connect('mqtt://localhost')
 
     User.findById(userId, 'pinCode name')
       .then(user => {
@@ -26,6 +25,7 @@ module.exports = {
         }
 
         mqttClient.publish('hello', 'Open the door', function () {
+          mqttClient.end()
           return res.status(200).send({ data: `Door opened by ${user.name}` })
         })
       })

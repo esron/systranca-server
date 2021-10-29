@@ -130,7 +130,7 @@ module.exports = {
     User.create({ name, email, status: 'enabled' })
       .then(user => res.status(200).send({ data: user }))
       .catch(err => res.status(500).send({
-        errors: err,
+        errors: [err],
         message: 'There was a problem creating the user.'
       }))
   },

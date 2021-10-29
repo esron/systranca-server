@@ -4,10 +4,10 @@ const app = require('../app')
 const { secret } = require('../config/constants')
 const User = require('../models/User')
 
-describe('POST /users', () => {
-  const user = { id: 1 }
-  const token = jwt.sign(user, secret)
+const user = { id: 1 }
+const token = jwt.sign(user, secret)
 
+describe('POST /users', () => {
   test('default validations works', () => {
     jest.spyOn(User, 'find').mockResolvedValue([])
     return request(app)
@@ -120,6 +120,77 @@ describe('POST /users', () => {
       .then(response => {
         expect(response.statusCode).toBe(200)
         expect(response.body).toStrictEqual({ data: testUser })
+      })
+  })
+})
+
+describe('GET /users ', () => {
+  const users = [
+    {
+      _id: '617b4ad51df88902f507643e',
+      name: 'Test user 1',
+      email: 'test1@test.com.br',
+      status: 'enabled',
+      phones: [],
+      __v: 0
+    },
+    {
+      _id: '617b4ad51df88902f507643f',
+      name: 'Test user 2',
+      email: 'test2@test.com.br',
+      status: 'enabled',
+      phones: [],
+      __v: 0
+    }
+  ]
+
+  test('listUsers works', () => {
+    const spy = jest.spyOn(User, 'find').mockResolvedValue(users)
+
+    return request(app)
+      .get('/users')
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .then(response => {
+        expect(response.statusCode).toBe(200)
+        expect(response.body).toStrictEqual({
+          data: users
+        })
+        expect(spy).toHaveBeenCalledWith({})
+      })
+  })
+
+  test('listUsers works with email filter', () => {
+    const spy = jest.spyOn(User, 'find').mockResolvedValue(users[0])
+
+    return request(app)
+      .get('/users')
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .query({ email: users[0].email })
+      .then(response => {
+        expect(response.statusCode).toBe(200)
+        expect(response.body).toStrictEqual({
+          data: users[0]
+        })
+        expect(spy).toHaveBeenCalledWith({ email: users[0].email })
+      })
+  })
+
+  test('listUsers sends an error if no able to find users', () => {
+    const spy = jest.spyOn(User, 'find').mockRejectedValue('')
+
+    return request(app)
+      .get('/users')
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .then(response => {
+        expect(response.statusCode).toBe(500)
+        expect(response.body).toStrictEqual({
+          errors: [''],
+          message: 'There was a problem finding the users.'
+        })
+        expect(spy).toHaveBeenCalledWith({})
       })
   })
 })

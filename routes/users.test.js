@@ -9,7 +9,7 @@ const token = jwt.sign(user, secret)
 
 describe('POST /users', () => {
   test('default validations works', () => {
-    jest.spyOn(User, 'find').mockResolvedValue([])
+    const spy = jest.spyOn(User, 'find').mockResolvedValue([])
     return request(app)
       .post('/users')
       .set('Accept', 'application/json')
@@ -36,6 +36,7 @@ describe('POST /users', () => {
             { location: 'body', msg: 'Invalid Email', param: 'email' }
           ]
         })
+        expect(spy).toHaveBeenCalledWith({ email: undefined })
       })
   })
 
@@ -45,7 +46,7 @@ describe('POST /users', () => {
       email: 'test@test.com'
     }
 
-    jest.spyOn(User, 'find').mockResolvedValue([testUser])
+    const spy = jest.spyOn(User, 'find').mockResolvedValue([testUser])
 
     return request(app)
       .post('/users')
@@ -67,6 +68,7 @@ describe('POST /users', () => {
             }
           ]
         })
+        expect(spy).toHaveBeenCalledWith({ email: testUser.email })
       })
   })
 
@@ -76,8 +78,8 @@ describe('POST /users', () => {
       email: 'test@test.com.br'
     }
 
-    jest.spyOn(User, 'find').mockResolvedValue([])
-    jest.spyOn(User, 'create').mockRejectedValue('')
+    const spyFind = jest.spyOn(User, 'find').mockResolvedValue([])
+    const spyCreate = jest.spyOn(User, 'create').mockRejectedValue('')
 
     return request(app)
       .post('/users')
@@ -93,6 +95,8 @@ describe('POST /users', () => {
           errors: [''],
           message: 'There was a problem creating the user.'
         })
+        expect(spyFind).toHaveBeenCalledWith({ email: testUser.email })
+        expect(spyCreate).toHaveBeenCalledWith({ status: 'enabled', ...testUser })
       })
   })
 
@@ -106,8 +110,8 @@ describe('POST /users', () => {
       __v: 0
     }
 
-    jest.spyOn(User, 'find').mockResolvedValue([])
-    jest.spyOn(User, 'create').mockResolvedValue(testUser)
+    const spyFind = jest.spyOn(User, 'find').mockResolvedValue([])
+    const spyCreate = jest.spyOn(User, 'create').mockResolvedValue(testUser)
 
     return request(app)
       .post('/users')
@@ -120,6 +124,12 @@ describe('POST /users', () => {
       .then(response => {
         expect(response.statusCode).toBe(200)
         expect(response.body).toStrictEqual({ data: testUser })
+        expect(spyFind).toHaveBeenCalledWith({ email: testUser.email })
+        expect(spyCreate).toHaveBeenCalledWith({
+          status: 'enabled',
+          name: testUser.name,
+          email: testUser.email
+        })
       })
   })
 })

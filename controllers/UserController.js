@@ -147,7 +147,7 @@ module.exports = {
     User.find(filter)
       .then((users) => res.status(200).send({ data: users }))
       .catch(err => res.status(500).send({
-        errors: err,
+        errors: [err],
         message: 'There was a problem finding the users.'
       }))
   },

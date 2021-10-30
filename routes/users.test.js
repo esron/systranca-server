@@ -187,7 +187,7 @@ describe('GET /users ', () => {
       })
   })
 
-  test('listUsers sends an error if no able to find users', () => {
+  test('listUsers sends an error if not able to find users', () => {
     const spy = jest.spyOn(User, 'find').mockRejectedValue('')
 
     return request(app)

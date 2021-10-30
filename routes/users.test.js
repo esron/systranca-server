@@ -204,3 +204,86 @@ describe('GET /users ', () => {
       })
   })
 })
+
+describe('GET /users/:userId', () => {
+  const testUser = {
+    _id: '617b4ad51df88902f507643f',
+    name: 'Test user',
+    email: 'test@test.com.br',
+    status: 'enabled',
+    phones: [],
+    __v: 0
+  }
+
+  test('validation rules works', () => {
+    return request(app)
+      .get('/users/anything_else')
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .then(response => {
+        expect(response.statusCode).toBe(422)
+        expect(response.body).toStrictEqual({
+          errors: [
+            {
+              location: 'params',
+              param: 'userId',
+              value: 'anything_else',
+              msg: 'Invalid userId'
+            }
+          ]
+        })
+      })
+  })
+
+  test('getUser returns a user', () => {
+    const spy = jest.spyOn(User, 'findById').mockResolvedValue(testUser)
+
+    return request(app)
+      .get(`/users/${testUser._id}`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .then(response => {
+        expect(response.statusCode).toBe(200)
+        expect(response.body).toStrictEqual({ data: testUser })
+        expect(spy).toHaveBeenCalledWith(testUser._id)
+      })
+  })
+
+  test('getUser returns 404 if the user not found', () => {
+    const spy = jest.spyOn(User, 'findById').mockResolvedValue(null)
+
+    return request(app)
+      .get(`/users/${testUser._id}`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .then(response => {
+        expect(response.statusCode).toBe(404)
+        expect(response.body).toStrictEqual({
+          errors: {
+            location: 'params',
+            param: 'userId',
+            value: testUser._id,
+            msg: 'User not found'
+          }
+        })
+        expect(spy).toHaveBeenCalledWith(testUser._id)
+      })
+  })
+
+  test('getUser sends an error if not able to find users', () => {
+    const spy = jest.spyOn(User, 'findById').mockRejectedValue('')
+
+    return request(app)
+      .get(`/users/${testUser._id}`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .then(response => {
+        expect(response.statusCode).toBe(500)
+        expect(response.body).toStrictEqual({
+          errors: [''],
+          message: 'There was a problem finding the users.'
+        })
+        expect(spy).toHaveBeenCalledWith(testUser._id)
+      })
+  })
+})

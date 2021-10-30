@@ -177,7 +177,7 @@ module.exports = {
         return res.status(200).send({ data: user })
       })
       .catch(err => res.status(500).send({
-        errors: err,
+        errors: [err],
         message: 'There was a problem finding the users.'
       }))
   },

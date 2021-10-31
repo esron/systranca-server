@@ -256,24 +256,18 @@ module.exports = {
       return res.status(422).send({ errors: errors.array() })
     }
 
-    const { pinCode, pinCodeConfirmation } = req.body
-    if (validatePinCode(pinCode, pinCodeConfirmation)) {
-      try {
-        await pinCodeHelper.createPinCode(userId, pinCode)
-        return res.status(200).json({
-          success: true,
+    const { pinCode } = req.body
+    try {
+      await pinCodeHelper.createPinCode(userId, pinCode)
+      return res.status(200).json({
+        data: {
           message: 'Pin Code created!'
-        })
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message: error.message
-        })
-      }
-    } else {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid Pin Code! Please, make sure it is valid!'
+        }
+      })
+    } catch (error) {
+      return res.status(500).json({
+        errors: [error],
+        message: 'There was a problem creating the pin code.'
       })
     }
   },
@@ -296,7 +290,7 @@ module.exports = {
         })
       }
     } else {
-      return res.status(401).json({
+      return res.status(422).json({
         success: false,
         message: 'Invalid Pin Code! Please, make sure it is valid!'
       })

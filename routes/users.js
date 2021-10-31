@@ -46,6 +46,7 @@ router.post(
 router.post(
   '/:userId/pinCode',
   authController.validateToken,
+  userController.validate('createPinCode'),
   userController.createPinCode
 )
 

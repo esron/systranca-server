@@ -287,3 +287,219 @@ describe('GET /users/:userId', () => {
       })
   })
 })
+
+describe('POST /users/:userId', () => {
+  const testUser = {
+    _id: '617b4ad51df88902f507643f',
+    name: 'Test user',
+    email: 'test@test.com.br',
+    status: 'enabled',
+    phones: [],
+    __v: 0
+  }
+
+  const validationErrorsPayload = {
+    name: '',
+    email: '',
+    pinCode: '',
+    status: ''
+  }
+
+  const repeatedEmailPayload = {
+    name: testUser.name,
+    email: 'same@test.com',
+    pinCode: '123456',
+    status: testUser.status
+  }
+
+  test('updateUser returns 404 when a invalid mongoId is provided', () => {
+    return request(app)
+      .put('/users/random_string')
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .then(response => {
+        expect(response.statusCode).toBe(404)
+        expect(response.body).toStrictEqual({
+          errors: [
+            {
+              location: 'params',
+              msg: 'Invalid userId',
+              param: 'userId',
+              value: 'random_string'
+            }
+          ]
+        })
+      })
+  })
+
+  test('default validation rules works', () => {
+    const spy = jest.spyOn(User, 'findOne').mockResolvedValue(null)
+
+    return request(app)
+      .put(`/users/${testUser._id}`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send(validationErrorsPayload)
+      .then(response => {
+        expect(response.statusCode).toBe(422)
+        expect(response.body).toStrictEqual({
+          errors: [
+            {
+              location: 'body',
+              param: 'name',
+              value: '',
+              msg: 'Name field cannot be empty'
+            },
+            {
+              location: 'body',
+              param: 'email',
+              value: '',
+              msg: 'Invalid Email'
+            },
+            {
+              location: 'body',
+              param: 'pinCode',
+              value: '',
+              msg: 'Pin code field must be numeric'
+            },
+            {
+              location: 'body',
+              param: 'pinCode',
+              value: '',
+              msg: 'Pin code field cannot be empty'
+            },
+            {
+              location: 'body',
+              param: 'pinCode',
+              value: '',
+              msg: 'Pin code field must be between 4 and 6 characters'
+            },
+            {
+              location: 'body',
+              param: 'status',
+              value: '',
+              msg: 'Name field cannot be empty'
+            }
+          ]
+        })
+        expect(spy).toHaveBeenCalledWith({ email: validationErrorsPayload.email })
+      })
+  })
+
+  test('updateUser returns an error if the email is already in use', () => {
+    const spy = jest.spyOn(User, 'findOne').mockResolvedValue({
+      id: testUser._id,
+      ...testUser
+    })
+
+    return request(app)
+      .put('/users/617b4ad51df88902f507643e')
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send(repeatedEmailPayload)
+      .then(response => {
+        expect(response.statusCode).toBe(422)
+        expect(response.body).toStrictEqual({
+          errors: [
+            {
+              location: 'body',
+              param: 'email',
+              value: 'same@test.com',
+              msg: 'Email already in use'
+            }
+          ]
+        })
+        expect(spy).toHaveBeenCalledWith({ email: repeatedEmailPayload.email })
+      })
+  })
+
+  test('updateUser returns 404 if no user is found', () => {
+    const spyFindOne = jest.spyOn(User, 'findOne').mockResolvedValue(null)
+    const spyFindOneAndUpdate = jest.spyOn(User, 'findOneAndUpdate').mockResolvedValue(null)
+
+    const notFoundId = '617b4ad51df88902f507643e'
+
+    return request(app)
+      .put(`/users/${notFoundId}`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send(repeatedEmailPayload)
+      .then(response => {
+        expect(response.statusCode).toBe(404)
+        expect(response.body).toStrictEqual({
+          errors: [{
+            location: 'params',
+            param: 'userId',
+            value: notFoundId,
+            msg: 'User not found'
+          }]
+        })
+        expect(spyFindOne).toHaveBeenCalledWith({ email: repeatedEmailPayload.email })
+        expect(spyFindOneAndUpdate).toHaveBeenCalledWith(
+          { _id: notFoundId },
+          // userId: 1 comes from the token creation and middleware
+          { userId: 1, ...repeatedEmailPayload },
+          { new: true, useFindAndModify: false }
+        )
+      })
+  })
+
+  test('updateUser works', () => {
+    const updatedName = 'New Test User'
+
+    const spyFindOneAndUpdate = jest.spyOn(User, 'findOneAndUpdate').mockResolvedValue({
+      ...testUser,
+      name: updatedName
+    })
+
+    return request(app)
+      .put(`/users/${testUser._id}`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({
+        name: updatedName
+      })
+      .then(response => {
+        expect(response.statusCode).toBe(200)
+        expect(response.body).toStrictEqual({
+          data: {
+            ...testUser,
+            name: updatedName
+          }
+        })
+        expect(spyFindOneAndUpdate).toHaveBeenCalledWith(
+          { _id: testUser._id },
+          // userId: 1 comes from the token creation and middleware
+          { userId: 1, name: updatedName },
+          { new: true, useFindAndModify: false }
+        )
+      })
+  })
+
+  test('updateUser returns an error if mongo is not able to update a user', () => {
+    const updatedName = 'New Test User'
+
+    const spy = jest.spyOn(User, 'findOneAndUpdate').mockRejectedValue('')
+
+    return request(app)
+      .put(`/users/${testUser._id}`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({
+        name: updatedName
+      })
+      .then(response => {
+        expect(response.statusCode).toBe(500)
+        expect(response.body).toStrictEqual({
+          errors: [''],
+          message: 'There was a problem finding the users.'
+        })
+        expect(spy).toHaveBeenCalledWith(
+          { _id: testUser._id },
+          // userId: 1 comes from the token creation and middleware
+          { userId: 1, name: updatedName },
+          { new: true, useFindAndModify: false }
+        )
+      })
+  })
+})

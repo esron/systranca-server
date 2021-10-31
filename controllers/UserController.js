@@ -115,6 +115,34 @@ module.exports = {
           }
         })
       }
+      case 'createPinCode': {
+        return checkSchema({
+          pinCode: {
+            in: ['body'],
+            isNumeric: {
+              errorMessage: 'Pin code field must be numeric'
+            },
+            isEmpty: {
+              errorMessage: 'Pin code field cannot be empty',
+              negated: true
+            },
+            isLength: {
+              errorMessage: 'Pin code field must be between 4 and 6 characters',
+              options: {
+                min: 4,
+                max: 6
+              }
+            }
+          },
+          pinCodeConfirmation: {
+            in: ['body'],
+            custom: {
+              errorMessage: 'Pin code confirmation doesn\'t match pin code',
+              options: (value, { req }) => (value === req.body.pinCode)
+            }
+          }
+        })
+      }
     }
   },
 
@@ -222,6 +250,12 @@ module.exports = {
 
   async createPinCode (req, res) {
     const { userId } = req.params
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+      return res.status(422).send({ errors: errors.array() })
+    }
+
     const { pinCode, pinCodeConfirmation } = req.body
     if (validatePinCode(pinCode, pinCodeConfirmation)) {
       try {

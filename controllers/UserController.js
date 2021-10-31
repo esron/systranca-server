@@ -203,12 +203,12 @@ module.exports = {
       .then(user => {
         if (!user) {
           return res.status(404).send({
-            errors: {
+            errors: [{
               location: 'params',
               param: 'userId',
               value: userId,
               msg: 'User not found'
-            }
+            }]
           })
         }
 

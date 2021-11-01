@@ -2,12 +2,10 @@ const { param, validationResult, checkSchema } = require('express-validator/chec
 
 const User = require('../models/User')
 
-const { validatePinCode } = require('../helpers/validations')
-
 const pinCodeHelper = require('../helpers/PinCodeHelpers')
 
 module.exports = {
-  validate  (method) {
+  validate (method) {
     switch (method) {
       case 'createUser': {
         return checkSchema({
@@ -115,6 +113,84 @@ module.exports = {
           }
         })
       }
+      case 'createPinCode': {
+        return checkSchema({
+          userId: {
+            in: ['params'],
+            isMongoId: {
+              errorMessage: 'Invalid user id'
+            }
+          },
+          pinCode: {
+            in: ['body'],
+            isNumeric: {
+              errorMessage: 'Pin code field must be numeric'
+            },
+            isEmpty: {
+              errorMessage: 'Pin code field cannot be empty',
+              negated: true
+            },
+            isLength: {
+              errorMessage: 'Pin code field must be between 4 and 6 characters',
+              options: {
+                min: 4,
+                max: 6
+              }
+            }
+          },
+          pinCodeConfirmation: {
+            in: ['body'],
+            custom: {
+              errorMessage: 'Pin code confirmation doesn\'t match pin code',
+              options: (value, { req }) => (value === req.body.pinCode)
+            }
+          }
+        })
+      }
+      case 'updatePinCode': {
+        return checkSchema({
+          userId: {
+            in: ['params'],
+            isMongoId: {
+              errorMessage: 'Invalid user id'
+            }
+          },
+          pinCode: {
+            in: ['body'],
+            isNumeric: {
+              errorMessage: 'Pin code field must be numeric'
+            },
+            isEmpty: {
+              errorMessage: 'Pin code field cannot be empty',
+              negated: true
+            }
+          },
+          newPinCode: {
+            in: ['body'],
+            isNumeric: {
+              errorMessage: 'Pin code field must be numeric'
+            },
+            isEmpty: {
+              errorMessage: 'Pin code field cannot be empty',
+              negated: true
+            },
+            isLength: {
+              errorMessage: 'Pin code field must be between 4 and 6 characters',
+              options: {
+                min: 4,
+                max: 6
+              }
+            }
+          },
+          newPinCodeConfirmation: {
+            in: ['body'],
+            custom: {
+              errorMessage: 'Pin code confirmation doesn\'t match pin code',
+              options: (value, { req }) => (value === req.body.newPinCode)
+            }
+          }
+        })
+      }
     }
   },
 
@@ -130,7 +206,7 @@ module.exports = {
     User.create({ name, email, status: 'enabled' })
       .then(user => res.status(200).send({ data: user }))
       .catch(err => res.status(500).send({
-        errors: err,
+        errors: [err],
         message: 'There was a problem creating the user.'
       }))
   },
@@ -147,7 +223,7 @@ module.exports = {
     User.find(filter)
       .then((users) => res.status(200).send({ data: users }))
       .catch(err => res.status(500).send({
-        errors: err,
+        errors: [err],
         message: 'There was a problem finding the users.'
       }))
   },
@@ -177,7 +253,7 @@ module.exports = {
         return res.status(200).send({ data: user })
       })
       .catch(err => res.status(500).send({
-        errors: err,
+        errors: [err],
         message: 'There was a problem finding the users.'
       }))
   },
@@ -186,6 +262,10 @@ module.exports = {
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
+      // Handles 404 erros if the userId is invalid
+      if (errors.mapped().userId) {
+        return res.status(404).send({ errors: errors.array() })
+      }
       return res.status(422).send({ errors: errors.array() })
     }
 
@@ -199,66 +279,123 @@ module.exports = {
       .then(user => {
         if (!user) {
           return res.status(404).send({
-            errors: {
+            errors: [{
               location: 'params',
               param: 'userId',
               value: userId,
               msg: 'User not found'
-            }
+            }]
           })
         }
 
         return res.status(200).send({ data: user })
       })
       .catch(err => res.status(500).send({
-        errors: err,
+        errors: [err],
         message: 'There was a problem finding the users.'
       }))
   },
+
   async createPinCode (req, res) {
     const { userId } = req.params
-    const { pinCode, pinCodeConfirmation } = req.body
-    if (validatePinCode(pinCode, pinCodeConfirmation)) {
-      try {
-        await pinCodeHelper.createPinCode(userId, pinCode)
-        return res.status(200).json({
-          success: true,
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+      if (errors.mapped().userId) {
+        return res.status(404).send({ errors: errors.array() })
+      }
+      return res.status(422).send({ errors: errors.array() })
+    }
+
+    let user = null
+    try {
+      user = await User.findById(userId)
+    } catch (error) {
+      return res.status(500).json({
+        errors: [error],
+        message: 'There was a problem creating the pin code.'
+      })
+    }
+
+    if (!user) {
+      return res.status(404).json({
+        errors: [{ message: 'User not found.' }]
+      })
+    }
+
+    const { pinCode } = req.body
+
+    try {
+      await pinCodeHelper.createPinCode(userId, pinCode)
+      return res.status(200).json({
+        data: {
           message: 'Pin Code created!'
-        })
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message: error.message
+        }
+      })
+    } catch (error) {
+      if (error.message === 'Pin Code has already been set!') {
+        return res.status(403).json({
+          errors: [error.message],
+          message: 'There was a problem creating the pin code.'
         })
       }
-    } else {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid Pin Code! Please, make sure it is valid!'
+
+      return res.status(500).json({
+        errors: [error],
+        message: 'There was a problem creating the pin code.'
       })
     }
   },
+
   async updatePinCode (req, res) {
     const { userId } = req.params
-    const { pinCode, newPinCode, newPinCodeConfirmation } = req.body
-    if (validatePinCode(newPinCode, newPinCodeConfirmation)) {
-      try {
-        await pinCodeHelper.authenticatePinCode(userId, pinCode)
-        await pinCodeHelper.updatePinCode(userId, newPinCode)
-        return res.status(200).json({
-          success: true,
-          message: 'Pin Code updated!'
-        })
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message: error.message
-        })
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+      if (errors.mapped().userId) {
+        return res.status(404).send({ errors: errors.array() })
       }
-    } else {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid Pin Code! Please, make sure it is valid!'
+      return res.status(422).send({ errors: errors.array() })
+    }
+
+    let user = null
+    try {
+      user = await User.findById(userId)
+    } catch (error) {
+      return res.status(500).json({
+        errors: [error],
+        message: 'There was a problem updating the pin code.'
+      })
+    }
+
+    if (!user) {
+      return res.status(404).json({
+        errors: [{ message: 'User not found.' }]
+      })
+    }
+
+    const { pinCode, newPinCode } = req.body
+
+    try {
+      await pinCodeHelper.authenticatePinCode(userId, pinCode)
+    } catch (error) {
+      return res.status(403).json({
+        errors: [error.message],
+        message: 'There was a problem updating the pin code.'
+      })
+    }
+
+    try {
+      await pinCodeHelper.updatePinCode(userId, newPinCode)
+      return res.status(200).json({
+        data: {
+          message: 'Pin Code updated!'
+        }
+      })
+    } catch (error) {
+      return res.status(500).json({
+        errors: [error],
+        message: 'There was a problem updating the pin code.'
       })
     }
   }

@@ -7,7 +7,7 @@ const { validatePinCode } = require('../helpers/validations')
 const pinCodeHelper = require('../helpers/PinCodeHelpers')
 
 module.exports = {
-  validate  (method) {
+  validate (method) {
     switch (method) {
       case 'createUser': {
         return checkSchema({

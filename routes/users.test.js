@@ -288,7 +288,7 @@ describe('GET /users/:userId', () => {
   })
 })
 
-describe('POST /users/:userId', () => {
+describe('PUT /users/:userId', () => {
   const validationErrorsPayload = {
     name: '',
     email: '',

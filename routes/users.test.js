@@ -578,8 +578,46 @@ describe('POST /users/:userId/pinCode', () => {
       })
   })
 
+  test('returns 404 if the user is not found', () => {
+    const spyUser = jest.spyOn(User, 'findById').mockResolvedValue(null)
+    const pinCode = '123445'
+    return request(app)
+      .post(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({ pinCode, pinCodeConfirmation: pinCode })
+      .then(response => {
+        expect(response.statusCode).toBe(404)
+        expect(response.body).toStrictEqual({
+          errors: [{
+            message: 'User not found.'
+          }]
+        })
+        expect(spyUser).toHaveBeenCalledWith(testUser._id)
+      })
+  })
+
+  test('returns 500 if if not able to find a user', () => {
+    const spyUser = jest.spyOn(User, 'findById').mockRejectedValue('')
+    const pinCode = '123445'
+    return request(app)
+      .post(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({ pinCode, pinCodeConfirmation: pinCode })
+      .then(response => {
+        expect(response.statusCode).toBe(500)
+        expect(response.body).toStrictEqual({
+          errors: [''],
+          message: 'There was a problem creating the pin code.'
+        })
+        expect(spyUser).toHaveBeenCalledWith(testUser._id)
+      })
+  })
+
   test('createPinCode works', () => {
-    const spy = jest.spyOn(pinCodeHelpers, 'createPinCode').mockResolvedValue(testUser)
+    const spyPinCodeHelper = jest.spyOn(pinCodeHelpers, 'createPinCode').mockResolvedValue(testUser)
+    const spyUser = jest.spyOn(User, 'findById').mockResolvedValue(testUser)
     const pinCode = '123456'
 
     return request(app)
@@ -594,7 +632,8 @@ describe('POST /users/:userId/pinCode', () => {
             message: 'Pin Code created!'
           }
         })
-        expect(spy).toHaveBeenCalledWith(testUser._id, pinCode)
+        expect(spyPinCodeHelper).toHaveBeenCalledWith(testUser._id, pinCode)
+        expect(spyUser).toHaveBeenCalledWith(testUser._id)
       })
   })
 
@@ -636,3 +675,12 @@ describe('POST /users/:userId/pinCode', () => {
       })
   })
 })
+
+// describe('PUT /users/:userId/pinCode', () => {
+//   test('default validation works', () => {
+//     return request(app)
+//       .put(`/users/${testUser._id}/pinCode`)
+//       .set('Accept', 'application/json')
+//       .set('x-access-token', token)
+//   })
+// })

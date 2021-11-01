@@ -117,6 +117,12 @@ module.exports = {
       }
       case 'createPinCode': {
         return checkSchema({
+          userId: {
+            in: ['params'],
+            isMongoId: {
+              errorMessage: 'Invalid user id'
+            }
+          },
           pinCode: {
             in: ['body'],
             isNumeric: {
@@ -253,6 +259,9 @@ module.exports = {
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
+      if (errors.mapped().userId) {
+        return res.status(404).send({ errors: errors.array() })
+      }
       return res.status(422).send({ errors: errors.array() })
     }
 

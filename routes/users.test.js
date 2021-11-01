@@ -3,9 +3,18 @@ const jwt = require('jsonwebtoken')
 const app = require('../app')
 const { secret } = require('../config/constants')
 const User = require('../models/User')
+const pinCodeHelpers = require('../helpers/PinCodeHelpers')
 
 const user = { id: 1 }
 const token = jwt.sign(user, secret)
+const testUser = {
+  _id: '617b4ad51df88902f507643f',
+  name: 'Test user',
+  email: 'test@test.com.br',
+  status: 'enabled',
+  phones: [],
+  __v: 0
+}
 
 describe('POST /users', () => {
   test('default validations works', () => {
@@ -206,15 +215,6 @@ describe('GET /users ', () => {
 })
 
 describe('GET /users/:userId', () => {
-  const testUser = {
-    _id: '617b4ad51df88902f507643f',
-    name: 'Test user',
-    email: 'test@test.com.br',
-    status: 'enabled',
-    phones: [],
-    __v: 0
-  }
-
   test('validation rules works', () => {
     return request(app)
       .get('/users/anything_else')
@@ -289,15 +289,6 @@ describe('GET /users/:userId', () => {
 })
 
 describe('POST /users/:userId', () => {
-  const testUser = {
-    _id: '617b4ad51df88902f507643f',
-    name: 'Test user',
-    email: 'test@test.com.br',
-    status: 'enabled',
-    phones: [],
-    __v: 0
-  }
-
   const validationErrorsPayload = {
     name: '',
     email: '',
@@ -500,6 +491,114 @@ describe('POST /users/:userId', () => {
           { userId: 1, name: updatedName },
           { new: true, useFindAndModify: false }
         )
+      })
+  })
+})
+
+describe('POST /users/:userId/pinCode', () => {
+  test('default validation rules works', () => {
+    return request(app)
+      .post(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .then(response => {
+        expect(response.statusCode).toBe(422)
+        expect(response.body).toStrictEqual({
+          errors:
+            [{
+              location: 'body',
+              msg: 'Pin code field must be numeric',
+              param: 'pinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field cannot be empty',
+              param: 'pinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field must be between 4 and 6 characters',
+              param: 'pinCode'
+            }]
+        })
+      })
+  })
+
+  test('equals validation rule works', () => {
+    return request(app)
+      .post(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({ pinCode: '123456', pinCodeConfirmation: '1234567' })
+      .then(response => {
+        expect(response.statusCode).toBe(422)
+        expect(response.body).toStrictEqual({
+          errors:
+            [{
+              location: 'body',
+              msg: 'Pin code confirmation doesn\'t match pin code',
+              param: 'pinCodeConfirmation',
+              value: '1234567'
+            }]
+        })
+      })
+  })
+
+  test('createPinCode works', () => {
+    const spy = jest.spyOn(pinCodeHelpers, 'createPinCode').mockResolvedValue(testUser)
+    const pinCode = '123456'
+
+    return request(app)
+      .post(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({ pinCode, pinCodeConfirmation: pinCode })
+      .then(response => {
+        expect(response.statusCode).toBe(200)
+        expect(response.body).toStrictEqual({
+          data: {
+            message: 'Pin Code created!'
+          }
+        })
+        expect(spy).toHaveBeenCalledWith(testUser._id, pinCode)
+      })
+  })
+
+  test('createPinCode returns an error if not able to create a pin code', () => {
+    const spy = jest.spyOn(pinCodeHelpers, 'createPinCode').mockRejectedValue('')
+    const pinCode = '123456'
+
+    return request(app)
+      .post(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({ pinCode, pinCodeConfirmation: pinCode })
+      .then(response => {
+        expect(response.statusCode).toBe(500)
+        expect(response.body).toStrictEqual({
+          errors: [''],
+          message: 'There was a problem creating the pin code.'
+        })
+        expect(spy).toHaveBeenCalledWith(testUser._id, pinCode)
+      })
+  })
+
+  test('createPinCode returns an error if the token is already set', () => {
+    const spy = jest.spyOn(pinCodeHelpers, 'createPinCode').mockRejectedValue(new Error('Pin Code has already been set!'))
+    const pinCode = '123456'
+
+    return request(app)
+      .post(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({ pinCode, pinCodeConfirmation: pinCode })
+      .then(response => {
+        expect(response.statusCode).toBe(403)
+        expect(response.body).toStrictEqual({
+          errors: ['Pin Code has already been set!'],
+          message: 'There was a problem creating the pin code.'
+        })
+        expect(spy).toHaveBeenCalledWith(testUser._id, pinCode)
       })
   })
 })

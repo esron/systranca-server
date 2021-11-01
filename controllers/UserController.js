@@ -2,8 +2,6 @@ const { param, validationResult, checkSchema } = require('express-validator/chec
 
 const User = require('../models/User')
 
-const { validatePinCode } = require('../helpers/validations')
-
 const pinCodeHelper = require('../helpers/PinCodeHelpers')
 
 module.exports = {
@@ -361,25 +359,45 @@ module.exports = {
       return res.status(422).send({ errors: errors.array() })
     }
 
-    const { pinCode, newPinCode, newPinCodeConfirmation } = req.body
-    if (validatePinCode(newPinCode, newPinCodeConfirmation)) {
-      try {
-        await pinCodeHelper.authenticatePinCode(userId, pinCode)
-        await pinCodeHelper.updatePinCode(userId, newPinCode)
-        return res.status(200).json({
-          success: true,
+    let user = null
+    try {
+      user = await User.findById(userId)
+      console.log(user)
+    } catch (error) {
+      return res.status(500).json({
+        errors: [error],
+        message: 'There was a problem updating the pin code.'
+      })
+    }
+
+    if (!user) {
+      return res.status(404).json({
+        errors: [{ message: 'User not found.' }]
+      })
+    }
+
+    const { pinCode, newPinCode } = req.body
+
+    try {
+      await pinCodeHelper.authenticatePinCode(userId, pinCode)
+    } catch (error) {
+      return res.status(403).json({
+        errors: [error.message],
+        message: 'There was a problem updating the pin code.'
+      })
+    }
+
+    try {
+      await pinCodeHelper.updatePinCode(userId, newPinCode)
+      return res.status(200).json({
+        data: {
           message: 'Pin Code updated!'
-        })
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message: error.message
-        })
-      }
-    } else {
-      return res.status(422).json({
-        success: false,
-        message: 'Invalid Pin Code! Please, make sure it is valid!'
+        }
+      })
+    } catch (error) {
+      return res.status(500).json({
+        errors: [error],
+        message: 'There was a problem updating the pin code.'
       })
     }
   }

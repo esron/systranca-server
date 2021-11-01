@@ -310,7 +310,6 @@ module.exports = {
     let user = null
     try {
       user = await User.findById(userId)
-      console.log(user)
     } catch (error) {
       return res.status(500).json({
         errors: [error],
@@ -362,7 +361,6 @@ module.exports = {
     let user = null
     try {
       user = await User.findById(userId)
-      console.log(user)
     } catch (error) {
       return res.status(500).json({
         errors: [error],

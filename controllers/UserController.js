@@ -265,6 +265,13 @@ module.exports = {
         }
       })
     } catch (error) {
+      if (error.message === 'Pin Code has already been set!') {
+        return res.status(403).json({
+          errors: [error.message],
+          message: 'There was a problem creating the pin code.'
+        })
+      }
+
       return res.status(500).json({
         errors: [error],
         message: 'There was a problem creating the pin code.'

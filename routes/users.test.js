@@ -676,11 +676,196 @@ describe('POST /users/:userId/pinCode', () => {
   })
 })
 
-// describe('PUT /users/:userId/pinCode', () => {
-//   test('default validation works', () => {
-//     return request(app)
-//       .put(`/users/${testUser._id}/pinCode`)
-//       .set('Accept', 'application/json')
-//       .set('x-access-token', token)
-//   })
-// })
+describe('PUT /users/:userId/pinCode', () => {
+  test('default validation works', () => {
+    return request(app)
+      .put(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .then(response => {
+        expect(response.statusCode).toBe(422)
+        expect(response.body).toStrictEqual({
+          errors:
+            [{
+              location: 'body',
+              msg: 'Pin code field must be numeric',
+              param: 'pinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field cannot be empty',
+              param: 'pinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field must be numeric',
+              param: 'newPinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field cannot be empty',
+              param: 'newPinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field must be between 4 and 6 characters',
+              param: 'newPinCode'
+            }]
+        })
+      })
+  })
+
+  test('returns 404 if an invalid mongo id is provided', () => {
+    return request(app)
+      .put('/users/invalid_id/pinCode')
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .then(response => {
+        expect(response.statusCode).toBe(404)
+        expect(response.body).toStrictEqual({
+          errors:
+            [{
+              location: 'params',
+              msg: 'Invalid user id',
+              param: 'userId',
+              value: 'invalid_id'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field must be numeric',
+              param: 'pinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field cannot be empty',
+              param: 'pinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field must be numeric',
+              param: 'newPinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field cannot be empty',
+              param: 'newPinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field must be between 4 and 6 characters',
+              param: 'newPinCode'
+            }]
+        })
+      })
+  })
+
+  test('returns 404 if the user is not found', () => {
+    const spyUser = jest.spyOn(User, 'findById').mockResolvedValue(null)
+    const pinCode = '123445'
+    const newPinCode = '654321'
+
+    return request(app)
+      .put(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({ pinCode, newPinCode, newPinCodeConfirmation: newPinCode })
+      .then(response => {
+        expect(response.statusCode).toBe(404)
+        expect(response.body).toStrictEqual({
+          errors: [{
+            message: 'User not found.'
+          }]
+        })
+        expect(spyUser).toHaveBeenCalledWith(testUser._id)
+      })
+  })
+
+  test('returns 500 if if not able to find a user', () => {
+    const spyUser = jest.spyOn(User, 'findById').mockRejectedValue('')
+    const pinCode = '123445'
+    const newPinCode = '654321'
+
+    return request(app)
+      .put(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({ pinCode, newPinCode, newPinCodeConfirmation: newPinCode })
+      .then(response => {
+        expect(response.statusCode).toBe(500)
+        expect(response.body).toStrictEqual({
+          errors: [''],
+          message: 'There was a problem updating the pin code.'
+        })
+        expect(spyUser).toHaveBeenCalledWith(testUser._id)
+      })
+  })
+
+  test('updatePinCode works', () => {
+    const spyUser = jest.spyOn(User, 'findById').mockResolvedValue(testUser)
+    const spyAuthenticatePinCode = jest.spyOn(pinCodeHelpers, 'authenticatePinCode').mockResolvedValue(true)
+    const spyUpdatePinCode = jest.spyOn(pinCodeHelpers, 'updatePinCode').mockResolvedValue(testUser)
+    const pinCode = '123445'
+    const newPinCode = '654321'
+
+    return request(app)
+      .put(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({ pinCode, newPinCode, newPinCodeConfirmation: newPinCode })
+      .then(response => {
+        expect(response.statusCode).toBe(200)
+        expect(response.body).toStrictEqual({
+          data: { message: 'Pin Code updated!' }
+        })
+        expect(spyUser).toHaveBeenCalledWith(testUser._id)
+        expect(spyAuthenticatePinCode).toHaveBeenCalledWith(testUser._id, pinCode)
+        expect(spyUpdatePinCode).toHaveBeenCalledWith(testUser._id, newPinCode)
+      })
+  })
+
+  test('returns 403 if the wrong pin code is provided', () => {
+    const spyUser = jest.spyOn(User, 'findById').mockResolvedValue(testUser)
+    const spyAuthenticatePinCode = jest.spyOn(pinCodeHelpers, 'authenticatePinCode').mockRejectedValue(new Error('Pin Code authentication error!'))
+    const pinCode = '123445'
+    const newPinCode = '654321'
+
+    return request(app)
+      .put(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({ pinCode, newPinCode, newPinCodeConfirmation: newPinCode })
+      .then(response => {
+        expect(response.statusCode).toBe(403)
+        expect(response.body).toStrictEqual({
+          errors: ['Pin Code authentication error!'],
+          message: 'There was a problem updating the pin code.'
+        })
+        expect(spyUser).toHaveBeenCalledWith(testUser._id)
+        expect(spyAuthenticatePinCode).toHaveBeenCalledWith(testUser._id, pinCode)
+      })
+  })
+
+  test('returns 500 if there is a problem with updatePinCode', () => {
+    const spyUser = jest.spyOn(User, 'findById').mockResolvedValue(testUser)
+    const spyAuthenticatePinCode = jest.spyOn(pinCodeHelpers, 'authenticatePinCode').mockResolvedValue(true)
+    const spyUpdatePinCode = jest.spyOn(pinCodeHelpers, 'updatePinCode').mockRejectedValue('')
+    const pinCode = '123445'
+    const newPinCode = '654321'
+
+    return request(app)
+      .put(`/users/${testUser._id}/pinCode`)
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .send({ pinCode, newPinCode, newPinCodeConfirmation: newPinCode })
+      .then(response => {
+        expect(response.statusCode).toBe(500)
+        expect(response.body).toStrictEqual({
+          errors: [''],
+          message: 'There was a problem updating the pin code.'
+        })
+        expect(spyUser).toHaveBeenCalledWith(testUser._id)
+        expect(spyAuthenticatePinCode).toHaveBeenCalledWith(testUser._id, pinCode)
+        expect(spyUpdatePinCode).toHaveBeenCalledWith(testUser._id, newPinCode)
+      })
+  })
+})

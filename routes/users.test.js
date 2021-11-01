@@ -544,6 +544,40 @@ describe('POST /users/:userId/pinCode', () => {
       })
   })
 
+  test('returns 404 if a invalid mongo id is provided', () => {
+    return request(app)
+      .post('/users/invalid_id/pinCode')
+      .set('Accept', 'application/json')
+      .set('x-access-token', token)
+      .then(response => {
+        expect(response.statusCode).toBe(404)
+        expect(response.body).toStrictEqual({
+          errors:
+            [{
+              location: 'params',
+              msg: 'Invalid user id',
+              param: 'userId',
+              value: 'invalid_id'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field must be numeric',
+              param: 'pinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field cannot be empty',
+              param: 'pinCode'
+            },
+            {
+              location: 'body',
+              msg: 'Pin code field must be between 4 and 6 characters',
+              param: 'pinCode'
+            }]
+        })
+      })
+  })
+
   test('createPinCode works', () => {
     const spy = jest.spyOn(pinCodeHelpers, 'createPinCode').mockResolvedValue(testUser)
     const pinCode = '123456'

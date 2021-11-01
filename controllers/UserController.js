@@ -265,7 +265,25 @@ module.exports = {
       return res.status(422).send({ errors: errors.array() })
     }
 
+    let user = null
+    try {
+      user = await User.findById(userId)
+      console.log(user)
+    } catch (error) {
+      return res.status(500).json({
+        errors: [error],
+        message: 'There was a problem creating the pin code.'
+      })
+    }
+
+    if (!user) {
+      return res.status(404).json({
+        errors: [{ message: 'User not found.' }]
+      })
+    }
+
     const { pinCode } = req.body
+
     try {
       await pinCodeHelper.createPinCode(userId, pinCode)
       return res.status(200).json({

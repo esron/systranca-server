@@ -66,12 +66,16 @@ module.exports = {
   },
 
   validateToken (req, res, next) {
-    jwt.verify(req.headers['x-access-token'], process.env.SECRET, function (
+    jwt.verify(req.headers['x-access-token'], secret, function (
       err,
       decoded
     ) {
       if (err) {
-        res.json({ status: 'error', message: err.message, data: null })
+        res.status(401).json({
+          errors: [{
+            message: 'Authentication error'
+          }]
+        })
       } else {
         req.body.userId = decoded.id
         next()

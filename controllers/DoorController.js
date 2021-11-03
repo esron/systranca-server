@@ -1,4 +1,4 @@
-const { checkSchema, validationResult } = require('express-validator/check')
+const { checkSchema, validationResult } = require('express-validator')
 const mqtt = require('mqtt')
 const User = require('../models/User')
 const { mqttUri } = require('../config/constants')

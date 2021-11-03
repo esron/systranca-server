@@ -1,4 +1,4 @@
-const { validationResult, checkSchema } = require('express-validator/check')
+const { validationResult, checkSchema } = require('express-validator')
 const User = require('../models/User')
 
 module.exports = {

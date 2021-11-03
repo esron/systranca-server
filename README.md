@@ -40,15 +40,15 @@ node keys.js
 
 -----
 
-### SETUP
+### Docker SetUp
 
-Run docker
+You will also need a MongoDb instance and a MQTT broker.
+
+This project comes with a `docker-compose.ym` file to help you deploy that locally, just:
 
 ```bash
-docker-compose up # verify first you are in sudo group.
+docker-compose up
 ```
-
-Docker tutorial [here](https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-16-04)
 
 If you see this error when to execute node container:
 ```bash
@@ -62,7 +62,7 @@ sudo sysctl fs.inotify.max_user_watches=582222 && sudo sysctl -p
 Create the super user
 
 ```bash
-docker-compose exec node node initDatabase.js
+docker-compose exec app node initDatabase.js
 ```
 
 This project doesn't have a front-end, yet.

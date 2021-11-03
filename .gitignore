@@ -63,3 +63,6 @@ typings/
 # private and public RSA keys
 private.key
 public.key
+
+# mosquitto config
+mosquitto.conf

@@ -1,6 +1,7 @@
 const { checkSchema, validationResult } = require('express-validator/check')
 const mqtt = require('mqtt')
 const User = require('../models/User')
+const { mqttUri } = require('../config/constants')
 
 module.exports = {
   validate () {
@@ -44,7 +45,7 @@ module.exports = {
           })
         }
 
-        const mqttClient = mqtt.connect('mqtt://localhost')
+        const mqttClient = mqtt.connect(mqttUri)
         mqttClient.publish('hello', 'Open the door', function () {
           mqttClient.end()
           return res.status(200).send({ data: `Door opened by ${user.name}` })

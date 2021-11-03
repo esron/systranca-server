@@ -22,7 +22,6 @@ module.exports = {
     }
 
     const { userId, pinCode } = req.body
-    const mqttClient = mqtt.connect('mqtt://localhost')
 
     User.findById(userId, 'pinCode name')
       .then(user => {
@@ -38,9 +37,14 @@ module.exports = {
         }
 
         if (pinCode !== user.pinCode) {
-          return res.status(403).send('Incorrect pin code')
+          return res.status(403).send({
+            errors: [{
+              message: 'Incorrect pin code.'
+            }]
+          })
         }
 
+        const mqttClient = mqtt.connect('mqtt://localhost')
         mqttClient.publish('hello', 'Open the door', function () {
           mqttClient.end()
           return res.status(200).send({ data: `Door opened by ${user.name}` })

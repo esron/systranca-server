@@ -1,9 +1,26 @@
+const { checkSchema, validationResult } = require('express-validator/check')
 const mqtt = require('mqtt')
 const User = require('../models/User')
 
 module.exports = {
+  validate () {
+    return checkSchema({
+      pinCode: {
+        in: ['body'],
+        exists: {
+          errorMessage: 'Pin code is required.'
+        }
+      }
+    })
+  },
 
   openDoor (req, res) {
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+      return res.status(422).send({ errors: errors.array() })
+    }
+
     const { userId, pinCode } = req.body
     const mqttClient = mqtt.connect('mqtt://localhost')
 

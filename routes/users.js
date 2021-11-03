@@ -1,6 +1,5 @@
 const express = require('express')
 const userController = require('../controllers/UserController')
-const phoneController = require('../controllers/PhoneController')
 const authController = require('../controllers/AuthController')
 
 const router = express.Router()
@@ -34,13 +33,6 @@ router.put(
   authController.validateToken,
   userController.validate('updateUser'),
   userController.updateUser
-)
-
-router.post(
-  '/:userId/phones',
-  authController.validateToken,
-  phoneController.validate('setUserPhones'),
-  phoneController.setUserPhones
 )
 
 router.post(

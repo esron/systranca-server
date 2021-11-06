@@ -1,0 +1,12 @@
+.github
+.git
+.gitignore
+.travis.yml
+CODE_OF_CONDUCT.md
+README.md
+mosquitto.conf
+.env.example
+jest.config.js
+**/*.test.js
+coverage/
+node_modules/

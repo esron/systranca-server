@@ -2,10 +2,9 @@ name: Deploy to Docker Hub
 
 on:
   push:
-    pull_request:
-      branches: [ master ]
     branches:
-      - "master"
+      - master
+      - latest
     tags:
       - "v*.*.*"
 
@@ -22,6 +21,7 @@ jobs:
           images: esron/systranca-server
           tags: |
             type=ref,event=branch
+            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
@@ -47,11 +47,14 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
-        with:
-          config-inline: |
-            [worker.containerd]
-              enabled = true
-              platforms = [ "linux/amd64", "linux/arm64" ]
+
+      - name: Inspect builder
+        run: |
+          echo "Name:      ${{ steps.buildx.outputs.name }}"
+          echo "Endpoint:  ${{ steps.buildx.outputs.endpoint }}"
+          echo "Status:    ${{ steps.buildx.outputs.status }}"
+          echo "Flags:     ${{ steps.buildx.outputs.flags }}"
+          echo "Platforms: ${{ steps.buildx.outputs.platforms }}"
 
       - name: Build and push
         id: docker_build
@@ -65,6 +68,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
+          platforms: linux/amd64,linux/arm64
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}

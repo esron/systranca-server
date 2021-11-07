@@ -1,9 +1,9 @@
 name: Deploy to Docker Hub
 
 on:
+  pull_request:
+    branches: [ master ]
   push:
-    pull_request:
-      branches: [ master ]
     branches:
       - "master"
     tags:

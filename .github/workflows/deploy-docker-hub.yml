@@ -2,6 +2,7 @@ name: Deploy to Docker Hub
 
 on:
   push:
+    pull_requests:
     branches:
       - "master"
     tags:
@@ -47,9 +48,6 @@ jobs:
         uses: docker/setup-buildx-action@v1
         with:
           config-inline: |
-            [worker.oci]
-              enabled = true
-              platforms = [ "linux/amd64", "linux/arm64" ]
             [worker.containerd]
               enabled = true
               platforms = [ "linux/amd64", "linux/arm64" ]

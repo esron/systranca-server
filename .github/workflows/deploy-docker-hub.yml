@@ -3,7 +3,8 @@ name: Deploy to Docker Hub
 on:
   push:
     branches:
-      - "master"
+      - master
+      - latest
     tags:
       - "v*.*.*"
 
